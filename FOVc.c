@@ -134,11 +134,13 @@ AxCoord RandCoord_Ax(int x_range, int y_range)
 	result.x = mt_drand() * x_range;
 	result.y = mt_drand() * y_range;
 
-	return result;
+	result = CubeToAx(OffToCube(AxToOff(result)));
 
-	//Replace with below if you want a random axial coordinate within a
-	//[0,x], [0,y] offset coordinate range.
+	return CubeToAx(OffToCube(RandCoord_Off(x_range, y_range)));
+	//return CubeToAx(OffToCube(RandCoord_Off(x_range, y_range)));
+	//return result;
 	//return OffToAx(RandCoord_Off(x_range, y_range));
+
 }
 
 // Generates a random cubic coordinate pair within an ([0, x], [0, y]) range
@@ -186,7 +188,7 @@ void LOS_CalcCube(CubeCoord origin, CubeCoord target)
 
 
 // ------------------ CHANGE BELOW HERE FOR PerfDiff --------------------//
-// Currently configured for: CUBIC.  Make changes in ScanLOSCalcs and RandLOSCalcs
+// Currently configured for: AXIAL.  Make changes in ScanLOSCalcs and RandLOSCalcs
 
 // Calculates LOS between the origin and target (distance, azimuth, all hexes inbetween)
 void ScanLOSCalc(int x, int y)
@@ -194,19 +196,18 @@ void ScanLOSCalc(int x, int y)
 	int i;
 	int j;
 
-	CubeCoord origin;
-	CubeCoord target;
+	AxCoord origin;
+	AxCoord target;
 
 	origin.x = 0;
 	origin.y = 0;
-	origin.z = 0;
 
 	for (i = 0; i < y; i++)
 		for (j = 0; j < x; j++) {
 			target.x = j;
 			target.y = i;
-			target.z = -j -i;
-			LOS_CalcCube(origin, target);
+
+			LOS_CalcAx(origin, target);
 		}
 }
 
@@ -215,20 +216,19 @@ void ScanLOSCalcMin(int x, int y)
 	int i;
 	int j;
 
-	CubeCoord origin;
-	CubeCoord target;
+	AxCoord origin;
+	AxCoord target;
 
 	origin.x = 0;
 	origin.y = 0;
-	origin.z = 0;
 
 	for (i = 0; i < y; i++)
 		for (j = 0; j < x; j++) {
 			target.x = j;
 			target.y = i;
-			target.z = -j -i;
-			CubeDist(origin, target);
-			AzimuthCube(origin, target);
+
+			AxDist(origin, target);
+			AzimuthAx(origin, target);
 		}
 }
 
@@ -237,24 +237,23 @@ void ScanDisplayCoord(int x, int y)
 	int i;
 	int j;
 
-	CubeCoord origin;
-	CubeCoord target;
-	
+	AxCoord origin;
+	AxCoord target;
+
 	OffCoord output1;
 	OffCoord output2;
 
 	origin.x = 0;
 	origin.y = 0;
-	origin.z = 0;
+
 
 	for (i = 0; i < y; i++)
 		for (j = 0; j < x; j++) {
 			target.x = j;
 			target.y = i;
-			target.z = -j -i;
-			
-			output1 = CubeToOff(origin);
-			output2 = CubeToOff(target);
+
+			output1 = AxToOff(origin);
+			output2 = AxToOff(target);
 
 			//printf ("(%d, %d) to (%d, %d)\n", output1.x, output1.y, output2.x, output2.y);
 		}
@@ -265,17 +264,17 @@ void RandLOSCalc(int x, int y, int reps)
 {
 	int i;
 
-	CubeCoord origin;
-	CubeCoord target;
+	AxCoord origin;
+	AxCoord target;
 
 	origin.x = 0;
 	origin.y = 0;
-	origin.z = 0;
 
 	for (i = 0; i < reps; i++) {
-		target = RandCoord_Cube(x, y);
+		target = RandCoord_Ax(x, y);
 
-		LOS_CalcCube(origin, target);
+		LOS_CalcAx(origin, target);
+		LOS_CalcAx(target, origin);
 	}
 }
 
@@ -283,18 +282,17 @@ void RandLOSCalcMin(int x, int y, int reps)
 {
 	int i;
 
-	CubeCoord origin;
-	CubeCoord target;
+	AxCoord origin;
+	AxCoord target;
 
 	origin.x = 0;
 	origin.y = 0;
-	origin.z = 0;
 
 	for (i = 0; i < reps; i++) {
-		target = RandCoord_Cube(x, y);
+		target = RandCoord_Ax(x, y);
 
-		CubeDist(origin, target);
-		AzimuthCube(origin, target);
+		AxDist(origin, target);
+		AzimuthAx(origin, target);
 	}
 }
 
@@ -302,21 +300,20 @@ void RandDisplayCoord(int x, int y, int reps)
 {
 	int i;
 
-	CubeCoord origin;
-	CubeCoord target;
+	AxCoord origin;
+	AxCoord target;
 
 	OffCoord output1;
 	OffCoord output2;
 
 	origin.x = 0;
 	origin.y = 0;
-	origin.z = 0;
 
 	for (i = 0; i < reps; i++) {
-		target = RandCoord_Cube(x, y);
+		target = RandCoord_Ax(x, y);
 
-		output1 = CubeToOff(origin);
-		output2 = CubeToOff(target);
+		output1 = AxToOff(origin);
+		output2 = AxToOff(target);
 
 		//printf ("(%d, %d) to (%d, %d)\n", output1.x, output1.y, output2.x, output2.y);
 	}
